@@ -34,7 +34,8 @@ const DefaultTimelineLimit = 20
 
 type filter struct {
 	Room struct {
-		Timeline struct {
+		IncludeLeave *bool `json:"include_leave"`
+		Timeline     struct {
 			Limit *int `json:"limit"`
 		} `json:"timeline"`
 	} `json:"room"`
@@ -78,6 +79,10 @@ func newSyncRequest(req *http.Request, device userapi.Device, syncDB storage.Dat
 			if err == nil && f.Room.Timeline.Limit != nil {
 				timelineLimit = *f.Room.Timeline.Limit
 			}
+			util.GetLogger(req.Context()).WithFields(log.Fields{
+				"filter":      f,
+				"filterQuery": filterQuery,
+			}).Info("Input filter")
 		} else {
 			// attempt to load the filter ID
 			localpart, _, err := gomatrixserverlib.SplitID('@', device.UserID)
